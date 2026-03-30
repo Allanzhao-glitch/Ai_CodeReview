@@ -1,7 +1,7 @@
 from config.settings import get_config
 from flask import Flask
 from tools import logger
-
+from services.queue_manager import QueueManager
 
 app = Flask(__name__)
 queue_manager = QueueManager(max_size=100, max_workers=1)

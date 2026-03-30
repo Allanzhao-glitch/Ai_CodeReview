@@ -1,0 +1,92 @@
+[GITLAB]
+URL = 'https://gitlab.mammotion.com'
+#TOKEN = 'ohG6NXeDp81csrcZN1RX'
+TOKEN = 'ScLMBfbHPy33xNxSjs1i'
+WEBHOOK_SECRET = 'BPvrA2YNh3VE2zNJ2mjk5BjmbVuI27Wd'
+
+[FLASK]
+HOST = '10.69.0.74'
+PORT = 5000
+
+[OLLAMA]
+HOST = 'http://10.12.6.234:11434'
+# 运行模式：'single' 单模型模式，'dual' 双模型对比模式
+RUNNING_MODE = 'single'
+# 当前使用的模型（单模型模式下有效）
+CURRENT_MODEL = 'QWEN_MODEL'
+# 双模型对比时使用的模型
+DS_MODEL = 'deepseek-r1:70b'
+QWEN_MODEL = 'qwen3.5:35b'
+# 代码审查提示词
+REVIEW_PROMPT="""
+你是一位资深代码审查专家，请审查以下变更并提供精准反馈，用中文回复：
+
+核心审查维度：
+1. 功能正确性：逻辑错误、边界条件、异常处理、业务逻辑验证
+2. 安全风险：注入攻击、权限控制、敏感信息泄露、输入验证
+3. 代码质量：最佳实践、设计模式、代码复用、架构合理性
+4. 性能优化：算法效率、资源消耗、响应时间、并发处理
+5. 可维护性：命名规范、注释完整性、代码结构、技术债务
+
+C语言专项检查：
+- 内存管理：指针使用、内存泄漏、缓冲区溢出
+- 类型安全：类型转换、格式化字符串、数组越界
+- 资源管理：文件句柄、网络连接、系统资源释放
+
+重要说明：
+- 只对有实际改进价值的问题提供评论，忽略纯信息性的说明
+- 重点关注修改对整体代码结构的影响
+- 基于上下文进行深度分析
+- 评估变更对整体架构的影响
+- 确保与现有代码风格一致性
+- 提供可操作的改进建议
+
+请以以下 JSON 格式返回审查结果：
+{
+    "file_path": "文件路径",
+    "overall_score": 评分 (1-10),
+    "summary": "整体评价摘要",
+    "comments": [
+        {
+            "file_path": "文件路径（必须与变更中的文件名一致）",
+            "line_number": 具体行号 (整数，必须是变更中的新文件行号),
+            "content": "具体的改进建议或问题描述",
+            "severity": "严重程度 (critical/major/minor)"
+        }
+    ]
+}
+
+关键要求（必须严格遵守）：
+1. file_path 必须是变更列表中的真实文件名，不能包含逗号、分号等分隔符
+2. line_number 必须是整数，对应 diff 中新文件的实际行号（以 + 开头的行）
+3. 只评论实际变更的文件和行，不要评论不存在的文件或旧代码
+4. 每个 comment 的 file_path 必须单独指定，不要继承父级 file_path
+5. 如果某行没有问题，不要生成评论，避免无意义的评论
+6. 充分利用上下文信息进行深度分析，确保评论有价值
+7. 无问题时回复："✅ 代码审查通过"，无需过多赘述
+
+请确保返回有效的JSON格式。
+"""
+
+
+[MODEL_UPDATE]
+# 模型自动更新配置
+ENABLED = true
+# 更新检查间隔（小时）
+CHECK_INTERVAL_HOURS = 24
+# 模型更新时间窗口（24小时制，例如 "02:00-04:00" 表示凌晨2点到4点）
+UPDATE_TIME_WINDOW = "02:00-04:00"
+# 更新超时时间（分钟）
+UPDATE_TIMEOUT_MINUTES = 30
+# 是否在更新期间暂停代码审查服务
+PAUSE_DURING_UPDATE = true
+# 更新失败重试次数
+MAX_RETRY_ATTEMPTS = 3
+# 可更新的模型列表
+AVAILABLE_MODELS = [
+    "deepseek-r1:70b",
+    "qwen3-coder:30b",
+    "qwen3.5:35b",
+]
+# 模型存储路径
+MODEL_STORAGE_PATH = "/models/ollama"
